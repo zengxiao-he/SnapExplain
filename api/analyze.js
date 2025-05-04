@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   const b64 = req.file.buffer.toString('base64')
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4-turbo-vision',   // 或者 'gpt-4o-mini'
+    model: 'gpt-4o-mini',   // 或者 'gpt-4o-mini'
     messages: [
       // 文字上下文
       { role: 'user', content: question || '请解释这张图片中的内容' },
