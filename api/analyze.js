@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',  // 换成你有权限的模型
+      model: 'gpt-4o-mini',  // 换成你有权限的模型
       messages: [
         { role: 'user', content: question || '请解释这段文字的含义。' },
         { role: 'user',
