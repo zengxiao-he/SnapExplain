@@ -9,13 +9,12 @@ export default async function handler(req, res) {
         return res.status(405).send('Method Not Allowed');
     }
 
-    // 处理 multipart/form-data
     await new Promise((resolve, reject) =>
         upload.single('image')(req, res, err => err ? reject(err) : resolve())
     );
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const question = req.body.question || '';
+    const question = req.body.question || '请解释这段图片的内容。';
     const b64 = req.file.buffer.toString('base64');
 
     try {
@@ -25,8 +24,8 @@ export default async function handler(req, res) {
                 {
                     role: 'user',
                     content: [
-                        { type: 'text', text: question || '请解释这段图片的内容。' },
-                        { type: 'image_url', image_url: 'data:image/png;base64,' + b64 }
+                        { type: 'text', text: question },
+                        { type: 'image_url', image_url: { url: 'data:image/png;base64,' + b64 } }
                     ]
                 }
             ]
