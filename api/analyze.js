@@ -1,11 +1,10 @@
 // api/analyze.js
 import multer from 'multer';
-import { VercelRequest, VercelResponse } from '@vercel/node';
 import { OpenAI } from 'openai';
 
 const upload = multer();
 
-export default async function handler(req = VercelRequest, res = VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
