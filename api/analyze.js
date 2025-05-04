@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   const question = req.body.question || '请解释这段文字的含义';
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: question }],
   });
 
