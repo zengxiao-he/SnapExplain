@@ -1,36 +1,38 @@
 // api/analyze.js
-import multer from 'multer'
-import { OpenAI } from 'openai'
+import multer from 'multer';
+import { OpenAI } from 'openai';
 
-const upload = multer()
+const upload = multer();
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).send('Method Not Allowed')
-  }
+  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+  // 处理 multipart/form-data
   await new Promise((resolve, reject) =>
     upload.single('image')(req, res, err => err ? reject(err) : resolve())
-  )
+  );
 
-  const apiKey = process.env.OPENAI_API_KEY
-  const openai = new OpenAI({ apiKey })
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const question = req.body.question || '';
+  const b64 = req.file.buffer.toString('base64');
 
-  // 如果前端同时发了 question 字段
-  const question = req.body.question || ''
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',  // 换成你有权限的模型
+      messages: [
+        { role: 'user', content: question || '请解释这段文字的含义。' },
+        { role: 'user',
+          type: 'image',
+          image: { data: b64 },
+          content: ''   // ⚠️ 必须有
+        },
+      ],
+    });
 
-  // 把文件转 base64
-  const b64 = req.file.buffer.toString('base64')
-
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',   // 或者 'gpt-4o-mini'
-    messages: [
-      // 文字上下文
-      { role: 'user', content: question || '请解释这张图片中的内容' },
-      // 图片
-      { role: 'user', type: 'image', image: { data: b64 } },
-    ],
-  })
-
-  const answer = response.choices[0].message.content
-  return res.status(200).json({ answer })
+    const answer = response.choices[0].message.content;
+    return res.status(200).json({ answer });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: '处理失败' });
+  }
 }
